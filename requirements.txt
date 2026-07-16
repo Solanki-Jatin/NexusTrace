@@ -1,3 +1,6 @@
 pandas
 networkx
 python-louvain
+fastapi
+uvicorn
+python-multipart
