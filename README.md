@@ -41,9 +41,7 @@ Investigators receive **Call Detail Records (CDR)** and **Internet Protocol Deta
 
 <div align="center">
 
-*(Demo GIF/video will go here once the UI is ready — coming in v1 finalization)*
-
-``
+*(Demo GIF/video will go here once the frontend UI is ready)*
 
 </div>
 
@@ -63,7 +61,9 @@ Investigators receive **Call Detail Records (CDR)** and **Internet Protocol Deta
 1. **Ingest** — parse the uploaded call record file into a clean, normalized format
 2. **Build the graph** — every phone number becomes a node, every call becomes a connection between two nodes
 3. **Analyze** — run graph algorithms (community detection, centrality scoring) to surface patterns a human would take hours to spot
-4. **Visualize** — render it as an interactive, clickable network diagram
+4. **Visualize** — render it as an interactive, clickable network diagram *(frontend, in progress)*
+
+The first three steps are fully working right now, both as a standalone script and as a live API. The last step (visual UI) is the current focus.
 
 ---
 
@@ -71,10 +71,10 @@ Investigators receive **Call Detail Records (CDR)** and **Internet Protocol Deta
 
 | Layer | Technology | Why |
 |---|---|---|
-| Core analysis engine | **Python + NetworkX** | Industry-standard graph algorithms, fast to prototype |
+| Core analysis engine | **Python + NetworkX + python-louvain** | Industry-standard graph algorithms, fast to prototype |
 | Backend API | **FastAPI** | Lightweight, connects the Python engine to the web app |
-| Frontend | **React** | Builds the interactive webpage/dashboard |
-| Graph rendering | **react-force-graph / D3.js** | Draws the interactive dot-and-line network |
+| Frontend | **React** *(coming next)* | Builds the interactive webpage/dashboard |
+| Graph rendering | **react-force-graph / D3.js** *(coming next)* | Draws the interactive dot-and-line network |
 | Data storage | CSV (v1) → **PostgreSQL** (planned) | Starting simple, upgrading as the project matures |
 
 ---
@@ -83,27 +83,52 @@ Investigators receive **Call Detail Records (CDR)** and **Internet Protocol Deta
 
 ```
 nexustrace/
-├── data/                  → sample/synthetic datasets
-├── generate_data.py       → synthetic CDR data generator (for testing without real data)
-├── backend/                → API + graph analysis logic (coming next)
-├── frontend/               → dashboard + visualization (coming next)
-└── docs/                   → notes, architecture, demo media
+├── README.md
+├── ROADMAP.md              → full project checklist, current + future versions
+├── requirements.txt         → Python dependencies
+├── .gitignore
+├── generate_data.py         → synthetic CDR data generator (for testing without real data)
+├── data/
+│   ├── call_records.csv     → sample generated call records
+│   └── graph_output.json    → sample analysis output (nodes, edges, clusters)
+├── analyze_graph.py          → standalone script: run the full analysis from the command line
+└── backend/
+    ├── __init__.py
+    ├── graph_engine.py       → reusable graph analysis functions
+    └── main.py                → FastAPI server exposing the engine as an API
 ```
+
+*(`frontend/` and `docs/` folders will be added once the UI work starts)*
 
 ---
 
 ## 🚀 Getting Started
 
-> ⚠️ v1 is under active development. Setup instructions will be filled in as each piece is built.
-
+### 1. Install dependencies
 ```bash
-# clone the repo
-git clone <repo-url>
-cd nexustrace
+pip install -r requirements.txt
+```
 
-# generate sample test data
+### 2. Generate sample test data
+```bash
 python3 generate_data.py
 ```
+This creates `data/call_records.csv` — fake call records with a planted suspect cluster, so there's something to test against without needing real data.
+
+### 3. Run the analysis directly (command line)
+```bash
+python3 analyze_graph.py
+```
+This reads the sample data, prints out the detected clusters and important numbers, and saves `data/graph_output.json`.
+
+### 4. Run the API server
+```bash
+uvicorn backend.main:app --reload
+```
+Then open `http://127.0.0.1:8000/docs` — FastAPI gives you a free interactive page to test every endpoint:
+- `POST /upload` — upload a CSV, get back the graph + clusters
+- `GET /central-numbers` — get the top hub/bridge numbers
+- `GET /shortest-path` — find the connection path between two numbers
 
 ---
 
@@ -112,12 +137,16 @@ python3 generate_data.py
 | Feature | Status |
 |---|---|
 | Synthetic call-record data generator | ✅ Done |
-| Data ingestion & normalization | 🔄 In progress |
-| Graph construction (NetworkX) | 🔜 Planned |
-| Community/cluster detection | 🔜 Planned |
-| Centrality scoring (find key numbers) | 🔜 Planned |
-| Interactive graph visualization | 🔜 Planned |
-| Shortest-path search between two numbers | 🔜 Planned |
+| Data ingestion & normalization | ✅ Done |
+| Graph construction (NetworkX) | ✅ Done |
+| Community/cluster detection | ✅ Done |
+| Centrality scoring (find key numbers) | ✅ Done |
+| Shortest-path search between two numbers | ✅ Done |
+| Backend API (FastAPI) | ✅ Done |
+| Interactive graph visualization (frontend) | 🔄 In progress |
+| Demo video/GIF | 🔜 Planned |
+
+Full detailed checklist (including every future version) is tracked in [`ROADMAP.md`](./ROADMAP.md).
 
 ---
 
@@ -142,7 +171,7 @@ This project is being built version by version — each one adding real, meaning
 This is a student-built project, growing with the team. If you're a teammate:
 
 1. Pull the latest code
-2. Pick a piece from the current version's task list (ask in the group if unsure where to start)
+2. Check [`ROADMAP.md`](./ROADMAP.md) for the current task list, pick something unchecked
 3. Build it, test it against `data/call_records.csv`
 4. Share your update — we'll merge progress together
 
