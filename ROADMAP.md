@@ -1,6 +1,6 @@
 # NexusTrace — Complete Project Roadmap Checklist
 
-A single place to track everything, from today's progress to the final SIH submission.
+A single place to track everything, from today's progress to the final submission.
 
 ---
 
@@ -97,4 +97,3 @@ A single place to track everything, from today's progress to the final SIH submi
 - [ ] Document limitations honestly (this is a heuristic, not certain proof)
 
 ---
-
