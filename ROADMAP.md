@@ -31,7 +31,7 @@ A single place to track everything, from today's progress to the final submissio
 - [x] Test API endpoints manually (Postman or browser)
 
 ### Frontend (not started yet)
-- [ ] Set up React project
+- [x] Set up React project
 - [ ] File upload component
 - [ ] Connect upload to backend API
 - [ ] Render graph visually (react-force-graph or D3)
