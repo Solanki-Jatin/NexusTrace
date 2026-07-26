@@ -1,0 +1,132 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: #0f172a;
+  color: #e2e8f0;
+}
+
+.app-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.app-header {
+  padding: 16px 24px;
+  border-bottom: 1px solid #1e293b;
+}
+
+.app-header h1 {
+  margin: 0;
+  font-size: 22px;
+}
+
+.app-header p {
+  margin: 4px 0 0;
+  color: #94a3b8;
+  font-size: 13px;
+}
+
+.app-body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.sidebar {
+  width: 280px;
+  padding: 16px;
+  border-right: 1px solid #1e293b;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.graph-container {
+  flex: 1;
+  position: relative;
+}
+
+.graph-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #64748b;
+  font-size: 14px;
+}
+
+.upload-button {
+  display: block;
+  text-align: center;
+  padding: 10px;
+  background: #3b82f6;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.error-text {
+  color: #f87171;
+  font-size: 12px;
+  margin-top: 6px;
+}
+
+.summary-box, .central-numbers-box {
+  background: #1e293b;
+  padding: 10px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+}
+
+.summary-box p {
+  margin: 2px 0;
+}
+
+.central-numbers-box h3 {
+  margin: 0 0 6px;
+  font-size: 13px;
+  color: #94a3b8;
+}
+
+.central-numbers-box ul {
+  margin: 0;
+  padding-left: 16px;
+}
+
+.search-bar, .path-finder {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.search-bar input, .path-finder input {
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #334155;
+  background: #1e293b;
+  color: #e2e8f0;
+  font-size: 13px;
+}
+
+.search-bar button, .path-finder button {
+  padding: 8px;
+  border-radius: 6px;
+  border: none;
+  background: #334155;
+  color: white;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.path-message {
+  font-size: 12px;
+  color: #94a3b8;
+  word-break: break-word;
+}
