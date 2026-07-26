@@ -41,7 +41,7 @@ Investigators receive **Call Detail Records (CDR)** and **Internet Protocol Deta
 
 <div align="center">
 
-*(Demo GIF/video will go here once the frontend UI is ready)*
+*(Demo GIF/video coming soon)*
 
 </div>
 
@@ -61,9 +61,9 @@ Investigators receive **Call Detail Records (CDR)** and **Internet Protocol Deta
 1. **Ingest** — parse the uploaded call record file into a clean, normalized format
 2. **Build the graph** — every phone number becomes a node, every call becomes a connection between two nodes
 3. **Analyze** — run graph algorithms (community detection, centrality scoring) to surface patterns a human would take hours to spot
-4. **Visualize** — render it as an interactive, clickable network diagram *(frontend, in progress)*
+4. **Visualize** — render it as an interactive, clickable network diagram in the browser
 
-The first three steps are fully working right now, both as a standalone script and as a live API. The last step (visual UI) is the current focus.
+All four steps are fully working now, upload a file and see live results end to end.
 
 ---
 
@@ -73,8 +73,8 @@ The first three steps are fully working right now, both as a standalone script a
 |---|---|---|
 | Core analysis engine | **Python + NetworkX + python-louvain** | Industry-standard graph algorithms, fast to prototype |
 | Backend API | **FastAPI** | Lightweight, connects the Python engine to the web app |
-| Frontend | **React** *(coming next)* | Builds the interactive webpage/dashboard |
-| Graph rendering | **react-force-graph / D3.js** *(coming next)* | Draws the interactive dot-and-line network |
+| Frontend | **React (Vite)** | Builds the interactive webpage/dashboard |
+| Graph rendering | **react-force-graph-2d** | Draws the interactive dot-and-line network |
 | Data storage | CSV (v1) → **PostgreSQL** (planned) | Starting simple, upgrading as the project matures |
 
 ---
@@ -92,43 +92,42 @@ nexustrace/
 │   ├── call_records.csv     → sample generated call records
 │   └── graph_output.json    → sample analysis output (nodes, edges, clusters)
 ├── analyze_graph.py          → standalone script: run the full analysis from the command line
-└── backend/
-    ├── __init__.py
-    ├── graph_engine.py       → reusable graph analysis functions
-    └── main.py                → FastAPI server exposing the engine as an API
+├── backend/
+│   ├── __init__.py
+│   ├── graph_engine.py       → reusable graph analysis functions
+│   └── main.py                → FastAPI server exposing the engine as an API
+└── frontend/
+    ├── index.html
+    ├── package.json
+    ├── vite.config.js
+    └── src/
+        ├── main.jsx, App.jsx, api.js, index.css
+        └── components/         → UploadPanel, GraphView, SearchBar, PathFinder
 ```
-
-*(`frontend/` and `docs/` folders will be added once the UI work starts)*
 
 ---
 
 ## 🚀 Getting Started
 
-### 1. Install dependencies
+### 1. Backend setup
 ```bash
 pip install -r requirements.txt
-```
-
-### 2. Generate sample test data
-```bash
-python3 generate_data.py
-```
-This creates `data/call_records.csv` — fake call records with a planted suspect cluster, so there's something to test against without needing real data.
-
-### 3. Run the analysis directly (command line)
-```bash
-python3 analyze_graph.py
-```
-This reads the sample data, prints out the detected clusters and important numbers, and saves `data/graph_output.json`.
-
-### 4. Run the API server
-```bash
+python3 generate_data.py        # creates sample test data
 uvicorn backend.main:app --reload
 ```
-Then open `http://127.0.0.1:8000/docs` — FastAPI gives you a free interactive page to test every endpoint:
-- `POST /upload` — upload a CSV, get back the graph + clusters
-- `GET /central-numbers` — get the top hub/bridge numbers
-- `GET /shortest-path` — find the connection path between two numbers
+This starts the API server at `http://127.0.0.1:8000`. Visit `http://127.0.0.1:8000/docs` for an interactive test page of every endpoint.
+
+### 2. Frontend setup
+In a separate terminal:
+```bash
+cd frontend
+npm install
+npm run dev
+```
+This starts the app at `http://localhost:5173`. Make sure the backend (step 1) is running at the same time.
+
+### 3. Try it out
+Open `http://localhost:5173`, upload `data/call_records.csv`, and you'll see the network graph with clusters colored, key numbers sized larger, and search/path-finding available in the sidebar.
 
 ---
 
@@ -143,7 +142,8 @@ Then open `http://127.0.0.1:8000/docs` — FastAPI gives you a free interactive 
 | Centrality scoring (find key numbers) | ✅ Done |
 | Shortest-path search between two numbers | ✅ Done |
 | Backend API (FastAPI) | ✅ Done |
-| Interactive graph visualization (frontend) | 🔄 In progress |
+| Interactive graph visualization (frontend) | ✅ Done |
+| Full end-to-end testing | 🔄 In progress |
 | Demo video/GIF | 🔜 Planned |
 
 Full detailed checklist (including every future version) is tracked in [`ROADMAP.md`](./ROADMAP.md).
