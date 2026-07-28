@@ -38,9 +38,10 @@ Investigators receive **Call Detail Records (CDR)** and **Internet Protocol Deta
 ---
 
 ## 🎬 Demo
+<img width="1758" height="867" alt="Screenshot 2026-07-29 000635" src="https://github.com/user-attachments/assets/79d233c2-5f18-4757-9330-16fd8673fefa" />
 
 <div align="center">
-<img width="1792" height="866" alt="image" src="https://github.com/user-attachments/assets/248789ba-2533-4062-b115-2fc7018597ba" />
+
 *(Demo GIF/video coming soon)*
 
 </div>
@@ -52,7 +53,7 @@ Investigators receive **Call Detail Records (CDR)** and **Internet Protocol Deta
 ```
    raw CSV/XLSX               graph construction         analysis engine            visual output
   ┌───────────────┐        ┌───────────────────┐        ┌──────────────────┐       ┌─────────────────┐
-  │ call_records.  │──────▶│  build nodes +     │─────▶│ community        │─────▶│ interactive     │
+  │ call_records.  │─────▶│  build nodes +     │──────▶│ community        │─────▶│ interactive     │
   │ csv (uploaded) │       │  weighted edges    │       │ detection +      │       │ force-graph in  │
   │                │       │  (NetworkX)        │       │ centrality       │       │ the browser     │
   └───────────────┘        └───────────────────┘        └──────────────────┘       └─────────────────┘
