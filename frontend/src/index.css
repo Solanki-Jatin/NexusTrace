@@ -38,6 +38,7 @@ body {
 }
 
 .sidebar {
+  flex: 0 0 280px;
   width: 280px;
   padding: 16px;
   border-right: 1px solid #1e293b;
@@ -48,8 +49,10 @@ body {
 }
 
 .graph-container {
-  flex: 1;
+  flex: 1 1 auto;
+  min-width: 0;
   position: relative;
+  overflow: hidden;
 }
 
 .graph-placeholder {
