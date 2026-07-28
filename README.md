@@ -1,4 +1,3 @@
-<img width="1792" height="866" alt="image" src="https://github.com/user-attachments/assets/248789ba-2533-4062-b115-2fc7018597ba" /><div align="center">
 
 # 🕸️ NexusTrace
 
@@ -38,10 +37,9 @@ Investigators receive **Call Detail Records (CDR)** and **Internet Protocol Deta
 ---
 
 ## 🎬 Demo
-![Uploading image.png…]()
 
 <div align="center">
-
+<img width="1792" height="866" alt="image" src="https://github.com/user-attachments/assets/248789ba-2533-4062-b115-2fc7018597ba" /><div align="center">
 *(Demo GIF/video coming soon)*
 
 </div>
