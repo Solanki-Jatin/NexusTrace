@@ -11,7 +11,15 @@ What it does:
 2. Creates a small "suspect group" of phone numbers that call EACH OTHER
    a lot more often than normal people do -> this is the group our tool
    should be able to spot automatically later.
-3. Saves everything into a file called call_records.csv (a spreadsheet)
+3. Makes ONE of the suspects a "coordinator" -> they call outside
+   contacts more than the rest of the group, which should make them
+   stand out as a "bridge" number in the analysis (the one connecting
+   the suspect operation to the outside world).
+4. Makes ONE normal number a "social hub" -> lots of different normal
+   people call this one number a lot (like a shop or a shared contact),
+   so our "top hub numbers" result has a believable, non-suspicious
+   example too, not just suspects.
+5. Saves everything into a file called call_records.csv (a spreadsheet)
    inside the data/ folder.
 """
 
@@ -24,6 +32,8 @@ NUM_NORMAL_PEOPLE = 60          # how many "regular" phone numbers exist
 NUM_SUSPECT_PEOPLE = 6           # how many people are in our planted suspect group
 NUM_NORMAL_CALLS = 1800          # total random background calls
 NUM_SUSPECT_CALLS = 250          # calls just between the suspect group (this is the pattern we want visible)
+NUM_COORDINATOR_CALLS = 55       # extra calls from the coordinator to outside contacts
+NUM_HUB_CALLS = 160              # calls FROM many different normal people TO our planted social hub
 NUM_TOWERS = 15                  # fake cell tower IDs, just for realism
 DAYS_RANGE = 30                  # spread calls across the last 30 days
 
@@ -46,23 +56,32 @@ def random_tower():
     return f"TWR-{random.randint(1, NUM_TOWERS):03d}"
 
 
-# Step 1: create our pool of fake phone numbers
-normal_numbers = [random_phone_number() for _ in range(NUM_NORMAL_PEOPLE)]
-suspect_numbers = [random_phone_number() for _ in range(NUM_SUSPECT_PEOPLE)]
-
-records = []
-
-# Step 2: generate "normal" background call traffic
-# these calls are between random pairs of normal people, nothing special
-for _ in range(NUM_NORMAL_CALLS):
-    caller, callee = random.sample(normal_numbers, 2)  # pick 2 different random people
+def add_call(records, caller, callee, duration_range):
     records.append({
         "caller": caller,
         "callee": callee,
         "timestamp": random_timestamp().strftime("%Y-%m-%d %H:%M:%S"),
-        "duration_sec": random.randint(5, 600),   # call length between 5 sec and 10 min
+        "duration_sec": random.randint(*duration_range),
         "tower_id": random_tower(),
     })
+
+
+# Step 1: create our pool of fake phone numbers
+normal_numbers = [random_phone_number() for _ in range(NUM_NORMAL_PEOPLE)]
+suspect_numbers = [random_phone_number() for _ in range(NUM_SUSPECT_PEOPLE)]
+
+# pick one suspect to be the "coordinator" (bridges the group to outsiders)
+coordinator = suspect_numbers[0]
+
+# pick one normal number to be the "social hub" (naturally popular, not suspicious)
+social_hub = normal_numbers[0]
+
+records = []
+
+# Step 2: generate "normal" background call traffic
+for _ in range(NUM_NORMAL_CALLS):
+    caller, callee = random.sample(normal_numbers, 2)
+    add_call(records, caller, callee, (5, 600))
 
 # Step 3: generate the "suspect group" calls
 # these calls happen ONLY between our 6 suspect numbers, and there are
@@ -70,33 +89,37 @@ for _ in range(NUM_NORMAL_CALLS):
 # tightly-connected cluster in the graph that should stand out clearly
 for _ in range(NUM_SUSPECT_CALLS):
     caller, callee = random.sample(suspect_numbers, 2)
-    records.append({
-        "caller": caller,
-        "callee": callee,
-        "timestamp": random_timestamp().strftime("%Y-%m-%d %H:%M:%S"),
-        "duration_sec": random.randint(10, 300),
-        "tower_id": random_tower(),
-    })
+    add_call(records, caller, callee, (10, 300))
 
-# Step 4: also add a FEW calls from suspects to normal people
-# (real suspects don't ONLY call each other, they call normal contacts too
-# sometimes - this makes the fake data feel a bit more realistic)
-for _ in range(40):
-    caller = random.choice(suspect_numbers)
+# Step 4: the coordinator calls a WIDE spread of normal people, more
+# than any other suspect does. This should push their "bridge" (betweenness)
+# score up, since they're the one connecting the tight suspect cluster to
+# the rest of the network.
+outside_contacts = random.sample(normal_numbers, 15)
+for _ in range(NUM_COORDINATOR_CALLS):
+    callee = random.choice(outside_contacts)
+    add_call(records, coordinator, callee, (5, 200))
+
+# Step 5: a FEW other suspects also call normal people sometimes (keeps
+# the data realistic, real suspects don't ONLY call each other)
+for _ in range(30):
+    caller = random.choice(suspect_numbers[1:])  # everyone except the coordinator
     callee = random.choice(normal_numbers)
-    records.append({
-        "caller": caller,
-        "callee": callee,
-        "timestamp": random_timestamp().strftime("%Y-%m-%d %H:%M:%S"),
-        "duration_sec": random.randint(5, 200),
-        "tower_id": random_tower(),
-    })
+    add_call(records, caller, callee, (5, 200))
 
-# Step 5: shuffle everything so it's not neatly grouped in the file
+# Step 6: the social hub gets called by lots of DIFFERENT normal people,
+# this is what makes them a "hub" by degree centrality, a believable
+# non-suspicious example (like a popular shop or shared community contact)
+callers_to_hub = [n for n in normal_numbers if n != social_hub]
+for _ in range(NUM_HUB_CALLS):
+    caller = random.choice(callers_to_hub)
+    add_call(records, caller, social_hub, (20, 400))
+
+# Step 7: shuffle everything so it's not neatly grouped in the file
 # (real data wouldn't come pre-sorted by "suspect" or "not suspect")
 random.shuffle(records)
 
-# Step 6: write it all out to a CSV file (a spreadsheet file)
+# Step 8: write it all out to a CSV file (a spreadsheet file)
 output_path = "data/call_records.csv"
 with open(output_path, "w", newline="") as f:
     writer = csv.DictWriter(f, fieldnames=["caller", "callee", "timestamp", "duration_sec", "tower_id"])
@@ -105,5 +128,7 @@ with open(output_path, "w", newline="") as f:
 
 print(f"Done! Created {len(records)} fake call records.")
 print(f"Saved to: {output_path}")
-print(f"\nHint: the suspect group phone numbers are: {suspect_numbers}")
-print("(You won't tell your tool about this list - the tool should FIND this group on its own later.)")
+print(f"\nSuspect group: {suspect_numbers}")
+print(f"Coordinator (should show up as a top 'bridge' number): {coordinator}")
+print(f"Social hub (should show up as a top 'hub' number, but is NOT a suspect): {social_hub}")
+print("\n(You won't tell your tool about any of this, the tool should FIND these patterns on its own.)")
